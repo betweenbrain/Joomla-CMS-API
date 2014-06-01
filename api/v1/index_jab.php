@@ -13,7 +13,6 @@ $application = & JFactory::getApplication('site');
 $application->initialise();
 
 require '../Slim/Slim.php';
-require_once ('functions.php');
 
 \Slim\Slim::registerAutoloader();
 
