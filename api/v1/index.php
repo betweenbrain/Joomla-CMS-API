@@ -85,4 +85,21 @@ $app->map('/content/', function () use ($app)
 	}
 )->via('POST');
 
+$app->map('/content/:id', function ($id) use ($app)
+	{
+		$row            = new stdClass();
+		$row->id        = $id;
+		$row->title     = $app->_input->get('title');
+		$row->introtext = $app->_input->get('introtext');
+		$row->state     = '1';
+
+		$result = $app->_db->updateObject('#__content', $row, 'id');
+
+		$app->render(200, array(
+				'msg' => $result,
+			)
+		);
+	}
+)->via('PUT');
+
 $app->run();
