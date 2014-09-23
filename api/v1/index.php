@@ -32,33 +32,6 @@ $app->get('/', function () use ($app)
 	));
 });
 
-/* Sessions */
-$app->map('/sessions/', function () use ($app)
-{
-	$query = $app->_db->getQuery(true);
-	$query->select('*');
-	$query->from($app->_db->quoteName('#__jab_sessions'));
-	$app->_db->setQuery($query);
-	$results = $app->_db->loadObjectList();
-
-	$app->render(200, array(
-		'msg' => $results,
-	));
-})->via('GET');
-
-$app->map('/sessions/:id', function ($id) use ($app)
-{
-	$query = $app->_db->getQuery(true);
-	$query->select('*');
-	$query->from($app->_db->quoteName('#__jab_sessions'));
-	$query->where('id = ' . $id);
-	$app->_db->setQuery($query);
-	$result = $app->_db->loadObject();
-	$app->render(200, array(
-		'msg' => $result,
-	));
-})->via('GET');
-
 // Content
 $app->map('/content/', function () use ($app)
 {
