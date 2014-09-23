@@ -8,5 +8,4 @@ RewriteBase /api/v1
 
 RewriteRule ^(api-docs)($|/) - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^ index_jab.php [QSA,L]
-#RewriteRule ^ index.php [QSA,L]
+RewriteRule ^ index.php [QSA,L]

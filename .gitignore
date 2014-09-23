@@ -31,3 +31,6 @@ tests
 tmp
 travisci-phpunit.xml
 web.config.txt
+
+# Exceptions
+!api/v1/index.php
