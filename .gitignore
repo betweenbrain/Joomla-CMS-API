@@ -24,6 +24,7 @@ phpunit.xml.dist
 plugins
 README.md
 README.txt
+robots.txt
 robots.txt.dist
 templates
 tests
