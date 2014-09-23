@@ -20,7 +20,8 @@ $app = new \Slim\Slim(array(
 	'mode' => 'development'
 ));
 
-$app->_db = JFactory::getDbo();
+$app->_db    = JFactory::getDbo();
+$app->_input = JFactory::getApplication()->input;
 $app->view(new \JsonApiView());
 $app->add(new \JsonApiMiddleware());
 
@@ -67,5 +68,21 @@ $app->map('/content/:id', function ($id) use ($app)
 		);
 	}
 )->via('GET');
+
+$app->map('/content/', function () use ($app)
+	{
+		$row            = new stdClass();
+		$row->title     = $app->_input->get('title');
+		$row->introtext = $app->_input->get('introtext');
+		$row->state     = '1';
+
+		$result = $app->_db->insertObject('#__content', $row);
+
+		$app->render(200, array(
+				'msg' => $result,
+			)
+		);
+	}
+)->via('POST');
 
 $app->run();
