@@ -102,4 +102,18 @@ $app->map('/content/:id', function ($id) use ($app)
 	}
 )->via('PUT');
 
+$app->map('/content/:id', function ($id) use ($app)
+	{
+		$query = $app->_db->getQuery(true);
+		$query->delete($app->_db->quoteName('#__content'))
+			->where('id = ' . $app->_db->quote($id));
+		$app->_db->setQuery($query);
+
+		$app->render(200, array(
+				'msg' => $app->_db->query(),
+			)
+		);
+	}
+)->via('DELETE');
+
 $app->run();
