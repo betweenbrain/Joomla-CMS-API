@@ -8,8 +8,9 @@ define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
 require_once(JPATH_BASE . '/includes/defines.php');
 require_once(JPATH_BASE . '/includes/framework.php');
 
-$application = JFactory::getApplication('site');
-$application->initialise();
+// Include Joomla helper class
+require_once(dirname(__FILE__) . '/jhelper.php');
+$helper = new jhelper;
 
 require '../Slim/Slim.php';
 
@@ -19,8 +20,9 @@ $app = new \Slim\Slim(array(
 	'mode' => 'development'
 ));
 
-$app->_db    = JFactory::getDbo();
-$app->_input = JFactory::getApplication()->input;
+$db    = JFactory::getDbo();
+$input = JFactory::getApplication()->input;
+
 $app->view(new \JsonApiView());
 $app->add(new \JsonApiMiddleware());
 
@@ -36,46 +38,46 @@ $app->get('/', function () use ($app)
 );
 
 // Content
-$app->map('/content/', function () use ($app)
+$app->map('/content/', function () use ($app, $db)
 	{
-		$query = $app->_db->getQuery(true);
+		$query = $db->getQuery(true);
 		$query->select('*')
-			->from($app->_db->quoteName('#__content'))
-			->where($app->_db->quoteName('state') . ' = ' . $app->_db->quote('1'));
-		$app->_db->setQuery($query);
+			->from($db->quoteName('#__content'))
+			->where($db->quoteName('state') . ' = ' . $db->quote('1'));
+		$db->setQuery($query);
 
 		$app->render(200, array(
-				'msg' => $app->_db->loadObjectList(),
+				'msg' => $db->loadObjectList(),
 			)
 		);
 	}
 )->via('GET');
 
-$app->map('/content/:id', function ($id) use ($app)
+$app->map('/content/:id', function ($id) use ($app, $db)
 	{
-		$query = $app->_db->getQuery(true);
+		$query = $db->getQuery(true);
 		$query->select('*')
-			->from($app->_db->quoteName('#__content'))
-			->where('id = ' . $app->_db->quote($id)
-				. ' AND ' . $app->_db->quoteName('state') . ' = ' . $app->_db->quote('1')
+			->from($db->quoteName('#__content'))
+			->where('id = ' . $db->quote($id)
+				. ' AND ' . $db->quoteName('state') . ' = ' . $db->quote('1')
 			);
-		$app->_db->setQuery($query);
+		$db->setQuery($query);
 
 		$app->render(200, array(
-				'msg' => $app->_db->loadObject(),
+				'msg' => $db->loadObject(),
 			)
 		);
 	}
 )->via('GET');
 
-$app->map('/content/', function () use ($app)
+$app->map('/content/', function () use ($app, $db, $input)
 	{
 		$row            = new stdClass();
-		$row->title     = $app->_input->get('title');
-		$row->introtext = $app->_input->get('introtext');
+		$row->title     = $input->get('title');
+		$row->introtext = $input->get('introtext');
 		$row->state     = '1';
 
-		$result = $app->_db->insertObject('#__content', $row);
+		$result = $db->insertObject('#__content', $row);
 
 		$app->render(200, array(
 				'msg' => $result,
@@ -84,15 +86,15 @@ $app->map('/content/', function () use ($app)
 	}
 )->via('POST');
 
-$app->map('/content/:id', function ($id) use ($app)
+$app->map('/content/:id', function ($id) use ($app, $db, $input)
 	{
 		$row            = new stdClass();
 		$row->id        = $id;
-		$row->title     = $app->_input->get('title');
-		$row->introtext = $app->_input->get('introtext');
+		$row->title     = $input->get('title');
+		$row->introtext = $input->get('introtext');
 		$row->state     = '1';
 
-		$result = $app->_db->updateObject('#__content', $row, 'id');
+		$result = $db->updateObject('#__content', $row, 'id');
 
 		$app->render(200, array(
 				'msg' => $result,
@@ -101,15 +103,15 @@ $app->map('/content/:id', function ($id) use ($app)
 	}
 )->via('PUT');
 
-$app->map('/content/:id', function ($id) use ($app)
+$app->map('/content/:id', function ($id) use ($app, $db)
 	{
-		$query = $app->_db->getQuery(true);
-		$query->delete($app->_db->quoteName('#__content'))
-			->where('id = ' . $app->_db->quote($id));
-		$app->_db->setQuery($query);
+		$query = $db->getQuery(true);
+		$query->delete($db->quoteName('#__content'))
+			->where('id = ' . $db->quote($id));
+		$db->setQuery($query);
 
 		$app->render(200, array(
-				'msg' => $app->_db->query(),
+				'msg' => $db->query(),
 			)
 		);
 	}
