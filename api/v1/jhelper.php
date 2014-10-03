@@ -16,10 +16,25 @@ class jhelper
 		$this->session = JFactory::getSession();
 		$this->app     = JFactory::getApplication('site');
 		$this->app->initialise();
+		$this->db = JFactory::getDbo();
 	}
 
 	public function checkUserSession()
 	{
 		$this->session->getId();
+	}
+
+	public function isUser()
+	{
+		$query = $this->db->getQuery(true);
+		$query->select('userid');
+		$query->from($this->db->quoteName('#__session'));
+		$query->where($this->db->quoteName('session_id') . " = " . $this->db->quote($this->checkUserSession()));
+
+		$this->db->setQuery($query);
+
+		return $this->checkUserSession();
+
+		return ($this->db->loadResult() === 0) ? true: false;
 	}
 }
