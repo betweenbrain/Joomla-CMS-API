@@ -3,7 +3,6 @@ define('_JEXEC', 1);
 define('_API', 1);
 
 define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
-define('JPATH_ADMINISTRATOR', dirname(dirname(dirname(__FILE__))) . '/administrator');
 
 // Include the Joomla framework
 require_once(JPATH_BASE . '/includes/defines.php');
