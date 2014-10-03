@@ -8,7 +8,7 @@ define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
 require_once(JPATH_BASE . '/includes/defines.php');
 require_once(JPATH_BASE . '/includes/framework.php');
 
-$application = &JFactory::getApplication('site');
+$application = JFactory::getApplication('site');
 $application->initialise();
 
 require '../Slim/Slim.php';
