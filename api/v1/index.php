@@ -5,8 +5,8 @@ define('_API', 1);
 define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
 
 // Include the Joomla framework
-require_once(JPATH_BASE . '/includes/defines.php');
-require_once(JPATH_BASE . '/includes/framework.php');
+require_once JPATH_BASE . '/includes/defines.php';
+require_once JPATH_BASE . '/includes/framework.php';
 
 $application = JFactory::getApplication('site');
 $application->initialise();
