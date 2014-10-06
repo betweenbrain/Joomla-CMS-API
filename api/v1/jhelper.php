@@ -21,7 +21,7 @@ class jhelper
 
 	public function checkUserSession()
 	{
-		$this->session->getId();
+		return $this->session->getId();
 	}
 
 	public function isUser()
@@ -33,8 +33,7 @@ class jhelper
 
 		$this->db->setQuery($query);
 
-		return $this->checkUserSession();
+		return $this->db->loadResult();
 
-		return ($this->db->loadResult() === 0) ? true: false;
 	}
 }

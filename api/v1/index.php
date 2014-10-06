@@ -8,9 +8,11 @@ define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
 require_once(JPATH_BASE . '/includes/defines.php');
 require_once(JPATH_BASE . '/includes/framework.php');
 
-// Include Joomla helper class
-require_once(dirname(__FILE__) . '/jhelper.php');
-$helper = new jhelper;
+$application = JFactory::getApplication('site');
+$application->initialise();
+
+require_once dirname(__FILE__) . '/jhelper.php';
+$helper = new jhelper();
 
 require '../Slim/Slim.php';
 
@@ -20,64 +22,63 @@ $app = new \Slim\Slim(array(
 	'mode' => 'development'
 ));
 
-$db    = JFactory::getDbo();
-$input = JFactory::getApplication()->input;
-
+$app->_db    = JFactory::getDbo();
+$app->_input = JFactory::getApplication()->input;
 $app->view(new \JsonApiView());
 $app->add(new \JsonApiMiddleware());
 
 // Main entry
-$app->get('/', function () use ($app)
+$app->get('/', function () use ($app, $helper)
 	{
 		$app->render(
 			200, array(
-				'msg' => 'You reach the JAB API V1',
+				'msg' => 'User ID:' . $helper->isUser() . ' Session ID:' . $helper->checkUserSession(),
 			)
 		);
 	}
 );
 
 // Content
-$app->map('/content/', function () use ($app, $db)
+$app->map('/content/', function () use ($app)
 	{
-		$query = $db->getQuery(true);
+		$query = $app->_db->getQuery(true);
 		$query->select('*')
-			->from($db->quoteName('#__content'))
-			->where($db->quoteName('state') . ' = ' . $db->quote('1'));
-		$db->setQuery($query);
+			->from($app->_db->quoteName('#__content'))
+			->where($app->_db->quoteName('state') . ' = ' . $app->_db->quote('1'));
+		$app->_db->setQuery($query);
 
 		$app->render(200, array(
-				'msg' => $db->loadObjectList(),
+				'msg' => $app->_db->loadObjectList(),
 			)
 		);
 	}
 )->via('GET');
 
-$app->map('/content/:id', function ($id) use ($app, $db)
+$app->map('/content/:id', function ($id) use ($app)
 	{
-		$query = $db->getQuery(true);
+		$query = $app->_db->getQuery(true);
 		$query->select('*')
-			->from($db->quoteName('#__content'))
-			->where('id = ' . $db->quote($id)
-				. ' AND ' . $db->quoteName('state') . ' = ' . $db->quote('1')
+			->from($app->_db->quoteName('#__content'))
+			->where('id = ' . $app->_db->quote($id)
+				. ' AND ' . $app->_db->quoteName('state') . ' = ' . $app->_db->quote('1')
 			);
-		$db->setQuery($query);
+		$app->_db->setQuery($query);
 
 		$app->render(200, array(
-				'msg' => $db->loadObject(),
+				'msg' => $app->_db->loadObject(),
 			)
 		);
 	}
 )->via('GET');
 
-$app->map('/content/', function () use ($app, $db, $input)
+$app->map('/content/', function () use ($app)
 	{
 		$row            = new stdClass();
-		$row->title     = $input->get('title');
-		$row->introtext = $input->get('introtext');
+		$row->title     = $app->_input->get('title');
+		$row->introtext = $app->_input->get('introtext');
 		$row->state     = '1';
 
-		$result = $db->insertObject('#__content', $row);
+		$result = $app->_db->insertObject('#__content', $row);
 
 		$app->render(200, array(
 				'msg' => $result,
@@ -86,15 +87,15 @@ $app->map('/content/', function () use ($app, $db, $input)
 	}
 )->via('POST');
 
-$app->map('/content/:id', function ($id) use ($app, $db, $input)
+$app->map('/content/:id', function ($id) use ($app)
 	{
 		$row            = new stdClass();
 		$row->id        = $id;
-		$row->title     = $input->get('title');
-		$row->introtext = $input->get('introtext');
+		$row->title     = $app->_input->get('title');
+		$row->introtext = $app->_input->get('introtext');
 		$row->state     = '1';
 
-		$result = $db->updateObject('#__content', $row, 'id');
+		$result = $app->_db->updateObject('#__content', $row, 'id');
 
 		$app->render(200, array(
 				'msg' => $result,
@@ -103,15 +104,15 @@ $app->map('/content/:id', function ($id) use ($app, $db, $input)
 	}
 )->via('PUT');
 
-$app->map('/content/:id', function ($id) use ($app, $db)
+$app->map('/content/:id', function ($id) use ($app)
 	{
-		$query = $db->getQuery(true);
-		$query->delete($db->quoteName('#__content'))
-			->where('id = ' . $db->quote($id));
-		$db->setQuery($query);
+		$query = $app->_db->getQuery(true);
+		$query->delete($app->_db->quoteName('#__content'))
+			->where('id = ' . $app->_db->quote($id));
+		$app->_db->setQuery($query);
 
 		$app->render(200, array(
-				'msg' => $db->query(),
+				'msg' => $app->_db->query(),
 			)
 		);
 	}
