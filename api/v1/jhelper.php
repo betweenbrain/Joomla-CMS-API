@@ -14,8 +14,6 @@ class jhelper
 	public function __construct()
 	{
 		$this->session = JFactory::getSession();
-		$this->app     = JFactory::getApplication('site');
-		$this->app->initialise();
 		$this->db = JFactory::getDbo();
 	}
 
