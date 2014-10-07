@@ -1,7 +1,6 @@
 <?php
 define('_JEXEC', 1);
 define('_API', 1);
-
 define('JPATH_BASE', dirname(dirname(dirname(__FILE__))));
 
 // Include the Joomla framework
@@ -10,9 +9,6 @@ require_once JPATH_BASE . '/includes/framework.php';
 
 $application = JFactory::getApplication('site');
 $application->initialise();
-
-require_once dirname(__FILE__) . '/jhelper.php';
-$helper = new jhelper();
 
 require '../Slim/Slim.php';
 
@@ -24,15 +20,20 @@ $app = new \Slim\Slim(array(
 
 $app->_db    = JFactory::getDbo();
 $app->_input = JFactory::getApplication()->input;
+
 $app->view(new \JsonApiView());
 $app->add(new \JsonApiMiddleware());
 
 // Main entry
-$app->get('/', function () use ($app, $helper)
+$app->get('/', function () use ($app)
 	{
+
+		$user = JFactory::getUser();
+		$name = !$user->guest ? $user->name : 'guest';
+
 		$app->render(
 			200, array(
-				'msg' => 'User ID:' . $helper->isUser() . ' Session ID:' . $helper->checkUserSession(),
+				'msg' => 'Welcome' . ' ' . $name,
 			)
 		);
 	}
@@ -73,17 +74,27 @@ $app->map('/content/:id', function ($id) use ($app)
 
 $app->map('/content/', function () use ($app)
 	{
-		$row            = new stdClass();
-		$row->title     = $app->_input->get('title');
-		$row->introtext = $app->_input->get('introtext');
-		$row->state     = '1';
+		$user = JFactory::getUser();
+		if (count($user->getAuthorisedCategories('com_content', 'core.create')) > 0)
+		{
+			$row            = new stdClass();
+			$row->title     = $app->_input->get('title') . rand();
+			$row->introtext = $app->_input->get('introtext') . rand();
+			$row->state     = '1';
 
-		$result = $app->_db->insertObject('#__content', $row);
+			$app->_db->insertObject('#__content', $row);
 
-		$app->render(200, array(
-				'msg' => $result,
+			$app->render(200, array(
+					'msg' => $row->title . ' created!',
+				)
+			);
+		}
+
+		$app->render(403, array(
+				'msg' => 'Not authorized',
 			)
 		);
+
 	}
 )->via('POST');
 
