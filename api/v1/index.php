@@ -100,14 +100,9 @@ $app->map('/content/', function () use ($app)
 
 $app->map('/content/:id', function ($id) use ($app)
 	{
-		include(JPATH_LIBRARIES . '/cms/helper/content.php');
-		$canDo = JHelperContent::getActions('com_content', 'article', $id);
-		$user  = JFactory::getUser();
 
-		//if ($canDo->get('core.edit') || ($canDo->get('core.edit.own') && $created_by == $user->id)){}
-
-		if ($user->authorise('core.edit', 'com_content.article.' . $id))
-			// see administrator/components/com_content/controllers/article.php:95
+		$user = JFactory::getUser();
+		if ($user->authorise('core.edit', 'com_content.article.' . $id) || $user->authorise('core.edit.own', 'com_content.article.' . $id))
 		{
 			$row            = new stdClass();
 			$row->id        = $id;
