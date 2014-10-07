@@ -77,10 +77,11 @@ $app->map('/content/', function () use ($app)
 		$user = JFactory::getUser();
 		if (count($user->getAuthorisedCategories('com_content', 'core.create')) > 0)
 		{
-			$row            = new stdClass();
-			$row->title     = $app->_input->get('title') . rand();
-			$row->introtext = $app->_input->get('introtext') . rand();
-			$row->state     = '1';
+			$row             = new stdClass();
+			$row->title      = $app->_input->get('title');
+			$row->introtext  = $app->_input->get('introtext');
+			$row->created_by = $user->id;
+			$row->state      = '1';
 
 			$app->_db->insertObject('#__content', $row);
 
