@@ -100,16 +100,31 @@ $app->map('/content/', function () use ($app)
 
 $app->map('/content/:id', function ($id) use ($app)
 	{
-		$row            = new stdClass();
-		$row->id        = $id;
-		$row->title     = $app->_input->get('title');
-		$row->introtext = $app->_input->get('introtext');
-		$row->state     = '1';
+		include(JPATH_LIBRARIES . '/cms/helper/content.php');
+		$canDo = JHelperContent::getActions('com_content', 'article', $id);
+		$user  = JFactory::getUser();
 
-		$result = $app->_db->updateObject('#__content', $row, 'id');
+		//if ($canDo->get('core.edit') || ($canDo->get('core.edit.own') && $created_by == $user->id)){}
 
-		$app->render(200, array(
-				'msg' => $result,
+		if ($user->authorise('core.edit', 'com_content.article.' . $id))
+			// see administrator/components/com_content/controllers/article.php:95
+		{
+			$row            = new stdClass();
+			$row->id        = $id;
+			$row->title     = $app->_input->get('title');
+			$row->introtext = $app->_input->get('introtext');
+			$row->state     = '1';
+
+			$result = $app->_db->updateObject('#__content', $row, 'id');
+
+			$app->render(200, array(
+					'msg' => $result,
+				)
+			);
+		}
+
+		$app->render(403, array(
+				'msg' => 'Not authorized',
 			)
 		);
 	}
